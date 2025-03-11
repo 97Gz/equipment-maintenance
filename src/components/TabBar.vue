@@ -1,63 +1,60 @@
 <template>
-<!--   <van-tabbar v-model="active" route safe-area-inset-bottom>
-    <van-tabbar-item v-for="(item, index) in tabbarItems" :key="index" :to="item.path" :icon="item.icon">
-      {{ item.title }}
-    </van-tabbar-item>
-  </van-tabbar> -->
+  <van-tabbar v-model="active" route safe-area-inset-bottom fixed>
+    <van-tabbar-item to="/dashboard" icon="chart-trending-o">仪表盘</van-tabbar-item>
+    <van-tabbar-item to="/menu" icon="apps-o">菜单</van-tabbar-item>
+    <van-tabbar-item to="/profile" icon="contact">个人信息</van-tabbar-item>
+  </van-tabbar>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
+const router = useRouter();
 const active = ref(0);
 
-interface TabbarItem {
-  title: string;
-  icon: string;
-  path: string;
-}
-
-// 底部导航栏项目配置
-const tabbarItems = reactive<TabbarItem[]>([
-  {
-    title: '个人事项',
-    icon: 'todo-list-o',
-    path: '/personal/todo'
-  },
-  {
-    title: '基础资料',
-    icon: 'label-o',
-    path: '/basic/equipment'
-  },
-  {
-    title: '设备点检',
-    icon: 'flag-o',
-    path: '/check/list'
-  },
-  {
-    title: '设备巡检',
-    icon: 'search',
-    path: '/patrol/list'
-  },
-  {
-    title: '设备维修',
-    icon: 'toolbox-o',
-    path: '/repair/maintenance'
-  }
-]);
-
 // 根据当前路由设置激活的标签
-const currentPath = route.path;
-const activeIndex = tabbarItems.findIndex(item => currentPath.includes(item.path.split('/')[1]));
-if (activeIndex !== -1) {
-  active.value = activeIndex;
-}
+onMounted(() => {
+  setActiveTab();
+});
+
+watch(() => route.path, () => {
+  setActiveTab();
+});
+
+// 设置当前激活的标签页
+const setActiveTab = () => {
+  const currentPath = route.path;
+  
+  if (currentPath.includes('/dashboard')) {
+    active.value = 0;
+  } else if (currentPath.includes('/menu') 
+    || currentPath.includes('/home')
+    || currentPath.includes('/personal')
+    || currentPath.includes('/basic')
+    || currentPath.includes('/check')
+    || currentPath.includes('/patrol')
+    || currentPath.includes('/repair')
+    || currentPath.includes('/maintenance')) {
+    active.value = 1;
+  } else if (currentPath.includes('/profile')) {
+    active.value = 2;
+  }
+};
 </script>
 
 <style scoped>
 .van-tabbar {
-  border-top: 1px solid #f5f5f5;
+  border-top: 1px solid var(--border-color);
+  box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.05);
+}
+
+:deep(.van-tabbar-item) {
+  color: var(--text-color-secondary);
+}
+
+:deep(.van-tabbar-item--active) {
+  color: var(--primary-color);
 }
 </style> 

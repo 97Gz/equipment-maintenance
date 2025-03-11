@@ -72,7 +72,7 @@ const onSubmit = async (values: { username: string; password: string }) => {
   try {
     await userStore.login(values.username, values.password);
     showNotify({ type: 'success', message: '登录成功' });
-    router.push('/home');
+    router.push('/dashboard');
   } catch (error) {
     console.error('登录失败', error);
   } finally {

@@ -1,5 +1,64 @@
-# Vue 3 + TypeScript + Vite
+# 设备管理系统
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+这是一个基于Vue 3 + TypeScript + Vant UI的设备管理系统，专为移动端设计，使用Vite作为构建工具。系统用于管理设备档案、设备点检、设备巡检、维修保养等功能。
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+## 功能列表
+
+### 基础功能
+- **设备档案管理**：查看、新增、编辑、删除设备信息
+- **设备点检**：点检标准管理、点检单管理、点检统计
+- **设备巡检**：巡检方案管理、巡检单管理、巡检统计
+- **设备报修维修**：维修单管理、报废单管理、维修统计
+- **设备维护保养**：保养计划、保养单管理、保养等级管理
+
+### 用户功能
+- **仪表盘**：设备状态分布、点检次数趋势、巡检分布等数据可视化
+- **菜单导航**：快速访问各功能模块
+- **个人信息**：用户信息管理、系统设置
+
+## 技术栈
+- **前端框架**：Vue 3 + TypeScript
+- **UI组件库**：Vant UI 4.0
+- **状态管理**：Pinia
+- **路由管理**：Vue Router 4
+- **构建工具**：Vite
+- **包管理器**：pnpm
+
+## 开发指南
+
+### 安装依赖
+```bash
+pnpm install
+```
+
+### 开发环境运行
+```bash
+pnpm dev
+```
+
+### 生产环境构建
+```bash
+pnpm build
+```
+
+### 预览构建结果
+```bash
+pnpm preview
+```
+
+## 项目结构
+```
+src/
+  ├── api/         # API接口
+  ├── assets/      # 静态资源
+  ├── components/  # 公共组件
+  ├── mock/        # 模拟数据
+  ├── router/      # 路由配置
+  ├── store/       # 状态管理
+  ├── types/       # TypeScript类型定义
+  ├── utils/       # 工具函数
+  ├── views/       # 页面组件
+  ├── App.vue      # 根组件
+  ├── main.ts      # 入口文件
+  └── style.css    # 全局样式
+```

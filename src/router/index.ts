@@ -16,6 +16,78 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: () => import('../views/dashboard/index.vue'),
+    meta: {
+      title: '仪表盘',
+      showTabBar: true
+    }
+  },
+  {
+    path: '/menu',
+    name: 'Menu',
+    component: () => import('../views/menu/index.vue'),
+    meta: {
+      title: '功能菜单',
+      showTabBar: true
+    }
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: () => import('../views/profile/index.vue'),
+    meta: {
+      title: '个人信息',
+      showTabBar: true
+    }
+  },
+  {
+    path: '/check/standard/:id',
+    name: 'CheckStandardDetail',
+    component: () => import('../views/check/standard-detail.vue'),
+    meta: {
+      title: '点检标准详情',
+      showTabBar: false
+    }
+  },
+  {
+    path: '/check/standard/add',
+    name: 'CheckStandardAdd',
+    component: () => import('../views/check/standard-detail.vue'),
+    meta: {
+      title: '添加点检标准',
+      showTabBar: false
+    }
+  },
+  {
+    path: '/check/record/:id',
+    name: 'CheckRecordDetail',
+    component: () => import('../views/check/record-detail.vue'),
+    meta: {
+      title: '点检记录详情',
+      showTabBar: false
+    }
+  },
+  {
+    path: '/check/record/edit/:id',
+    name: 'CheckRecordEdit',
+    component: () => import('../views/check/record-detail.vue'),
+    meta: {
+      title: '编辑点检记录',
+      showTabBar: false
+    }
+  },
+  {
+    path: '/check/record/add',
+    name: 'CheckRecordAdd',
+    component: () => import('../views/check/record-detail.vue'),
+    meta: {
+      title: '新增点检记录',
+      showTabBar: false
+    }
+  },
+  {
     path: '/home',
     name: 'Home',
     component: () => import('../views/home/index.vue'),
@@ -30,6 +102,24 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('../views/equipment/detail.vue'),
     meta: {
       title: '设备详情',
+      showTabBar: false
+    }
+  },
+  {
+    path: '/equipment/edit/:id',
+    name: 'EquipmentEdit',
+    component: () => import('../views/equipment/edit.vue'),
+    meta: {
+      title: '编辑设备',
+      showTabBar: false
+    }
+  },
+  {
+    path: '/equipment/check/:id',
+    name: 'EquipmentCheck',
+    component: () => import('../views/equipment/check.vue'),
+    meta: {
+      title: '设备点检',
       showTabBar: false
     }
   },

@@ -11,6 +11,51 @@ const service = axios.create({
   }
 });
 
+// 添加mock拦截器（必须在其他拦截器之前）
+import { handleMockRequest } from './mock';
+
+service.interceptors.request.use(
+  async (config) => {
+    // 检查是否是API请求
+    if (config.url?.startsWith('/api/')) {
+      console.log('[Mock Request]', config.url);
+      
+      try {
+        // 模拟网络延迟
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // 根据请求URL返回不同的模拟数据
+        const mockResponse = await handleMockRequest(config);
+        
+        // 截断请求链，直接返回模拟数据
+        throw {
+          response: {
+            data: mockResponse,
+            status: 200,
+            statusText: 'OK',
+            headers: {},
+            config
+          },
+          isAxiosError: true,
+          toJSON: () => ({})
+        };
+      } catch (error: any) {
+        if (error.response?.data) {
+          // 这是我们抛出的带有mock数据的错误
+          return Promise.reject(error);
+        }
+        // 其他错误正常传递
+        console.error('[Mock Error]', error);
+      }
+    }
+    
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // 请求拦截器
 service.interceptors.request.use(
   (config) => {
@@ -44,10 +89,13 @@ service.interceptors.response.use(
         showDialog({
           title: '提示',
           message: '您的登录状态已过期，请重新登录',
-          confirmButtonText: '重新登录'
-        }).then(() => {
-          localStorage.removeItem('token');
-          router.push('/login');
+          confirmButtonText: '重新登录',
+          callback: (action: 'confirm' | 'cancel') => {
+            if (action === 'confirm') {
+              localStorage.removeItem('token');
+              router.push('/login');
+            }
+          }
         });
       }
       
@@ -56,7 +104,12 @@ service.interceptors.response.use(
       return res;
     }
   },
-  (error) => {
+  (error: any) => {
+    // 如果是我们的mock响应，直接返回数据
+    if (error.response?.data && error.isAxiosError) {
+      return error.response.data;
+    }
+    
     showToast({
       type: 'fail',
       message: error.message || '请求错误',

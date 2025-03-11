@@ -2,24 +2,24 @@
   <div class="equipment-container">
     <nav-bar title="设备档案" />
     
-    <div class="content">
-      <div class="filter-bar">
-        <van-search
-          v-model="searchText"
-          placeholder="搜索设备名称/型号"
-          shape="round"
-          show-action
-          @search="onSearch"
-          @cancel="onCancel"
-          @clear="onClear"
-        />
-        
-        <van-dropdown-menu>
-          <van-dropdown-item v-model="filterType" :options="typeOptions" />
-          <van-dropdown-item v-model="filterStatus" :options="statusOptions" />
-        </van-dropdown-menu>
-      </div>
+    <div class="filter-bar">
+      <van-search
+        v-model="searchText"
+        placeholder="搜索设备名称/型号"
+        shape="round"
+        show-action
+        @search="onSearch"
+        @cancel="onCancel"
+        @clear="onClear"
+      />
       
+      <van-dropdown-menu>
+        <van-dropdown-item v-model="filterType" :options="typeOptions" />
+        <van-dropdown-item v-model="filterStatus" :options="statusOptions" />
+      </van-dropdown-menu>
+    </div>
+    
+    <div class="content">
       <div class="equipment-list">
         <template v-if="loading">
           <van-skeleton title avatar :row="3" v-for="i in 3" :key="i" />
@@ -30,6 +30,7 @@
             v-for="equipment in filteredEquipments"
             :key="equipment.id"
             :equipment="equipment"
+            @delete="handleDeleteEquipment"
           />
         </template>
         
@@ -38,15 +39,25 @@
         </template>
       </div>
     </div>
+    
+    <!-- 添加设备按钮 -->
+    <van-fab
+      class="add-button"
+      icon="plus"
+      type="primary"
+      @click="addEquipment"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useEquipmentStore } from '@/store/equipment';
 import NavBar from '@/components/NavBar.vue';
 import EquipmentCard from '@/components/EquipmentCard.vue';
 
+const router = useRouter();
 const equipmentStore = useEquipmentStore();
 const loading = ref(true);
 const searchText = ref('');
@@ -114,6 +125,19 @@ const onClear = () => {
   searchText.value = '';
 };
 
+// 处理设备删除
+const handleDeleteEquipment = (id: string) => {
+  // 实际项目中这里应调用API删除设备
+  console.log('删除设备:', id);
+  // 此处仅做前端数据处理示例
+  equipmentStore.equipmentList = equipmentStore.equipmentList.filter(item => item.id !== id);
+};
+
+// 新增设备
+const addEquipment = () => {
+  router.push('/equipment/edit/new');
+};
+
 // 页面加载时获取设备列表
 onMounted(async () => {
   try {
@@ -131,46 +155,50 @@ onMounted(async () => {
   padding-top: 46px;
   padding-bottom: 50px;
   min-height: 100vh;
-  background-color: #f8fafc;
+  background-color: var(--background-color);
 }
 
 .content {
-  padding: 16px;
+  padding: 8px;
+  padding-top: 110px; /* 留出过滤栏的固定空间 */
 }
 
 .filter-bar {
-  position: sticky;
+  position: fixed;
   top: 46px;
+  left: 0;
+  right: 0;
   z-index: 10;
-  background-color: #f8fafc;
-  margin-bottom: 16px;
+  background-color: var(--background-color);
+  padding: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .equipment-list {
-  margin-top: 16px;
+  margin-top: 8px;
 }
 
 :deep(.van-dropdown-menu) {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   border-radius: 8px;
   overflow: hidden;
-  margin-top: 12px;
+  margin-top: 8px;
 }
 
 :deep(.van-dropdown-menu__bar) {
-  background-color: #fff;
+  background-color: var(--card-background);
 }
 
 :deep(.van-dropdown-menu__title) {
-  color: #1a56db;
+  color: var(--primary-color);
 }
 
 :deep(.van-dropdown-menu__title::after) {
-  border-color: #1a56db transparent transparent;
+  border-color: var(--primary-color) transparent transparent;
 }
 
 :deep(.van-dropdown-menu__title--active) {
-  color: #1a56db;
+  color: var(--primary-color);
 }
 
 :deep(.van-search) {
@@ -179,6 +207,13 @@ onMounted(async () => {
 }
 
 :deep(.van-search__content) {
-  background-color: #fff;
+  background-color: var(--card-background);
+}
+
+.add-button {
+  position: fixed;
+  right: 16px;
+  bottom: 66px;
+  z-index: 10;
 }
 </style> 

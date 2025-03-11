@@ -4,65 +4,101 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: #333333;
+  background-color: #f5f7fa;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* 优化主题色，减少蓝色的使用，采用更柔和的色调 */
+  --primary-color: #3c78d8;
+  --primary-light: #eef4ff;
+  --success-color: #34b37c;
+  --warning-color: #f5a623;
+  --danger-color: #e74c3c;
+  --info-color: #64748b;
+  --border-color: #e5e7eb;
+  --text-color: #333333;
+  --text-color-secondary: #64748b;
+  --background-color: #f5f7fa;
+  --card-background: #ffffff;
 }
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--primary-color);
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: #4b88e8;
 }
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
+  padding: 0;
   min-width: 320px;
   min-height: 100vh;
+  background-color: var(--background-color);
+  color: var(--text-color);
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.2;
+  margin: 0.5em 0;
 }
 
 button {
-  border-radius: 8px;
+  border-radius: 4px;
   border: 1px solid transparent;
-  padding: 0.6em 1.2em;
+  padding: 0.5em 1em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--primary-color);
+  color: white;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.2s ease;
 }
 button:hover {
-  border-color: #646cff;
+  background-color: #4b88e8;
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
 }
 
 .card {
-  padding: 2em;
+  padding: 1em;
+  background-color: var(--card-background);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 #app {
-  max-width: 1280px;
+  width: 100%;
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  text-align: left;
+}
+
+/* 为移动设备优化内边距 */
+.content {
+  padding: 8px !important;
+}
+
+/* 调整Vant组件样式 */
+:root {
+  --van-primary-color: var(--primary-color);
+  --van-success-color: var(--success-color);
+  --van-danger-color: var(--danger-color);
+  --van-warning-color: var(--warning-color);
+  --van-padding-xs: 6px;
+  --van-padding-sm: 8px;
+  --van-padding-md: 12px;
+  --van-padding-lg: 14px;
+  --van-padding-xl: 16px;
 }
 
 @media (prefers-color-scheme: light) {

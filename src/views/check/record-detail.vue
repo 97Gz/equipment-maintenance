@@ -9,30 +9,38 @@
           <div class="section-title">基本信息</div>
           <van-cell-group inset>
             <van-field
+              v-model="formData.recordNo"
+              label="单据编号"
+              placeholder="系统自动生成"
+              readonly
+            />
+            <van-field
               v-model="formData.equipmentCode"
               label="设备编码"
-              placeholder="请输入设备编码"
-              :readonly="!isAddMode && !isEditMode"
-              :rules="[{ required: true, message: '请输入设备编码' }]"
+              placeholder="请选择设备"
+              readonly
+              is-link
+              @click="showEquipmentPopup = true"
+              :rules="[{ required: true, message: '请选择设备' }]"
             />
             <van-field
               v-model="formData.equipmentName"
               label="设备名称"
-              placeholder="请输入设备名称"
-              :readonly="!isAddMode && !isEditMode"
-              :rules="[{ required: true, message: '请输入设备名称' }]"
+              placeholder="选择设备后自动填充"
+              readonly
+              :rules="[{ required: true, message: '请选择设备' }]"
             />
             <van-field
               v-model="formData.workshop"
               label="使用车间"
-              placeholder="请输入使用车间"
-              :readonly="!isAddMode && !isEditMode"
+              placeholder="选择设备后自动填充"
+              readonly
             />
             <van-field
               v-model="formData.location"
               label="安装地点"
-              placeholder="请输入安装地点"
-              :readonly="!isAddMode && !isEditMode"
+              placeholder="选择设备后自动填充"
+              readonly
             />
           </van-cell-group>
         </div>
@@ -47,7 +55,6 @@
               placeholder="请选择点检标准"
               readonly
               is-link
-              :disabled="!isAddMode && !isEditMode"
               @click="showStandardPopup = true"
               :rules="[{ required: true, message: '请选择点检标准' }]"
             />
@@ -60,12 +67,9 @@
             <van-field
               v-model="formData.checkTime"
               label="点检时间"
-              placeholder="请选择点检时间"
+              placeholder="点检时间"
               readonly
-              is-link
-              :disabled="!isAddMode && !isEditMode"
-              @click="showTimePicker = true"
-              :rules="[{ required: true, message: '请选择点检时间' }]"
+              :rules="[{ required: true, message: '请输入点检时间' }]"
             />
             <van-field
               v-model="formData.checker"
@@ -150,9 +154,7 @@
         </div>
         
         <!-- 提交按钮 -->
-        <div v-if="isAddMode || isEditMode" class="submit-btn">
-          <van-button round block type="primary" native-type="submit">保存</van-button>
-        </div>
+        <div class="form-padding"></div>
       </van-form>
     </div>
     
@@ -162,16 +164,49 @@
       <p class="loading-text">加载中...</p>
     </div>
     
+    <!-- 设备选择弹窗 -->
+    <van-popup v-model:show="showEquipmentPopup" position="bottom" :style="{ height: '60%' }">
+      <div class="popup-header">
+        <div class="popup-title">选择设备</div>
+        <van-icon name="cross" @click="showEquipmentPopup = false" />
+      </div>
+      <div class="popup-content">
+        <van-search
+          v-model="equipmentSearchText"
+          placeholder="搜索设备名称/编码"
+          @input="filterEquipmentList"
+        />
+        <van-radio-group v-model="selectedEquipmentId">
+          <van-cell-group>
+            <van-cell v-for="equipment in filteredEquipmentList" :key="equipment.id" clickable @click="selectEquipment(equipment)">
+              <template #title>
+                <div class="equipment-title">{{ equipment.name }}</div>
+                <div class="equipment-desc">{{ equipment.type }} | {{ equipment.workshop }}</div>
+              </template>
+              <template #right-icon>
+                <van-radio :name="equipment.id" />
+              </template>
+            </van-cell>
+          </van-cell-group>
+        </van-radio-group>
+      </div>
+    </van-popup>
+    
     <!-- 点检标准选择弹窗 -->
-    <van-popup v-model:show="showStandardPopup" position="bottom" :style="{ height: '50%' }">
+    <van-popup v-model:show="showStandardPopup" position="bottom" :style="{ height: '60%' }">
       <div class="popup-header">
         <div class="popup-title">选择点检标准</div>
         <van-icon name="cross" @click="showStandardPopup = false" />
       </div>
       <div class="popup-content">
+        <van-search
+          v-model="standardSearchText"
+          placeholder="搜索标准名称/编码"
+          @input="filterStandardList"
+        />
         <van-radio-group v-model="selectedStandardId">
           <van-cell-group>
-            <van-cell v-for="standard in standardList" :key="standard.id" clickable @click="selectStandard(standard)">
+            <van-cell v-for="standard in filteredStandardList" :key="standard.id" clickable @click="selectStandard(standard)">
               <template #title>
                 <div class="standard-title">{{ standard.name }}</div>
                 <div class="standard-desc">{{ standard.code }} | 项目数: {{ standard.items?.length || 0 }}</div>
@@ -185,18 +220,10 @@
       </div>
     </van-popup>
     
-    <!-- 时间选择弹窗 -->
-    <van-popup v-model:show="showTimePicker" position="bottom">
-      <van-datetime-picker
-        title="选择点检时间"
-        type="datetime"
-        v-model="currentDate"
-        :min-date="new Date(2020, 0, 1)"
-        :max-date="new Date(2025, 11, 31)"
-        @confirm="confirmTimeSelection"
-        @cancel="showTimePicker = false"
-      />
-    </van-popup>
+    <!-- 固定在底部的保存按钮 -->
+    <div class="fixed-bottom" v-if="isAddMode || isEditMode">
+      <van-button round block type="primary" @click="submitForm">保存</van-button>
+    </div>
   </div>
 </template>
 
@@ -231,18 +258,24 @@ const pageTitle = computed(() => {
   return '点检单详情';
 });
 
+// 设备选择相关
+const showEquipmentPopup = ref(false);
+const equipmentList = ref<Equipment[]>([]);
+const filteredEquipmentList = ref<Equipment[]>([]);
+const selectedEquipmentId = ref('');
+const equipmentSearchText = ref('');
+
 // 标准选择相关
 const showStandardPopup = ref(false);
 const standardList = ref<CheckStandard[]>([]);
+const filteredStandardList = ref<CheckStandard[]>([]);
 const selectedStandardId = ref('');
-
-// 日期选择相关
-const showTimePicker = ref(false);
-const currentDate = ref<Date>(new Date());
+const standardSearchText = ref('');
 
 // 表单数据
 const formData = reactive<CheckRecord>({
   id: '',
+  recordNo: isAddMode.value ? '系统自动生成' : '',
   equipmentId: '',
   equipmentCode: '',
   equipmentName: '',
@@ -261,11 +294,66 @@ const formData = reactive<CheckRecord>({
 // 表单是否加载中
 const loading = ref(false);
 
+// 过滤设备列表
+const filterEquipmentList = () => {
+  if (!equipmentSearchText.value) {
+    filteredEquipmentList.value = equipmentList.value;
+    return;
+  }
+  
+  const keyword = equipmentSearchText.value.toLowerCase();
+  filteredEquipmentList.value = equipmentList.value.filter(
+    item => 
+      item.name.toLowerCase().includes(keyword) || 
+      (item.code && item.code.toLowerCase().includes(keyword))
+  );
+};
+
+// 过滤标准列表
+const filterStandardList = () => {
+  if (!standardSearchText.value) {
+    filteredStandardList.value = standardList.value;
+    return;
+  }
+  
+  const keyword = standardSearchText.value.toLowerCase();
+  filteredStandardList.value = standardList.value.filter(
+    item => 
+      item.name.toLowerCase().includes(keyword) || 
+      item.code.toLowerCase().includes(keyword)
+  );
+};
+
+// 初始化设备列表
+const initEquipmentList = async () => {
+  try {
+    await equipmentStore.fetchEquipmentList();
+    equipmentList.value = equipmentStore.equipmentList;
+    filteredEquipmentList.value = equipmentList.value;
+  } catch (error) {
+    console.error('获取设备列表失败', error);
+    showToast('获取设备列表失败');
+  }
+};
+
+// 选择设备
+const selectEquipment = (equipment: Equipment) => {
+  selectedEquipmentId.value = equipment.id;
+  formData.equipmentId = equipment.id;
+  formData.equipmentName = equipment.name;
+  formData.equipmentCode = equipment.code || '';
+  formData.workshop = equipment.workshop || '';
+  formData.location = equipment.location || '';
+  
+  showEquipmentPopup.value = false;
+};
+
 // 初始化标准列表
 const initStandardList = async () => {
   try {
     await checkStore.fetchStandardList();
     standardList.value = checkStore.standardList;
+    filteredStandardList.value = standardList.value;
   } catch (error) {
     console.error('获取点检标准列表失败', error);
     showToast('获取点检标准列表失败');
@@ -283,24 +371,12 @@ const selectStandard = (standard: CheckStandard) => {
   formData.items = standard.items.map(item => ({
     name: item.name,
     method: item.method,
-    standardRange: `${item.minValue} - ${item.maxValue}`,
-    result: '',
+    standardRange: `${item.minValue || ''} - ${item.maxValue || ''}`.trim(),
+    result: 'normal',
     remark: ''
   }));
   
   showStandardPopup.value = false;
-};
-
-// 确认时间选择
-const confirmTimeSelection = (value: Date) => {
-  const year = value.getFullYear();
-  const month = String(value.getMonth() + 1).padStart(2, '0');
-  const day = String(value.getDate()).padStart(2, '0');
-  const hours = String(value.getHours()).padStart(2, '0');
-  const minutes = String(value.getMinutes()).padStart(2, '0');
-  
-  formData.checkTime = `${year}-${month}-${day} ${hours}:${minutes}`;
-  showTimePicker.value = false;
 };
 
 // 添加检查项
@@ -309,7 +385,7 @@ const addCheckItem = () => {
     name: '',
     method: '',
     standardRange: '',
-    result: '',
+    result: 'normal',
     remark: ''
   });
 };
@@ -319,31 +395,17 @@ const removeCheckItem = (index: number) => {
   formData.items.splice(index, 1);
 };
 
-// 加载设备信息
-const loadEquipmentInfo = async (equipmentId: string) => {
-  try {
-    await equipmentStore.fetchEquipmentDetail(equipmentId);
-    const equipment = equipmentStore.getCurrentEquipment;
-    
-    if (equipment) {
-      formData.equipmentId = equipment.id;
-      formData.equipmentName = equipment.name;
-      formData.equipmentCode = equipment.code || '';
-      formData.workshop = equipment.workshop || '';
-      formData.location = equipment.location || '';
-
-      // 如果设备有关联的点检标准，自动选择该标准
-      if (equipment.checkInfo && equipment.checkInfo.standardId) {
-        const foundStandard = standardList.value.find(s => s.id === equipment.checkInfo.standardId);
-        if (foundStandard) {
-          selectStandard(foundStandard);
-        }
-      }
-    }
-  } catch (error) {
-    console.error('获取设备信息失败', error);
-    showToast('获取设备信息失败');
-  }
+// 设置当前时间为点检时间（仅在添加模式下）
+const setCurrentCheckTime = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  
+  formData.checkTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
 // 提交表单
@@ -360,7 +422,7 @@ const submitForm = async () => {
   }
   
   if (!formData.checkTime) {
-    showToast('请选择点检时间');
+    showToast('请输入点检时间');
     return;
   }
   
@@ -385,16 +447,34 @@ const submitForm = async () => {
       showToast('请填写检查结果');
       return;
     }
+    
+    if (item.result === 'abnormal' && !item.remark) {
+      showToast('请填写异常情况说明');
+      return;
+    }
   }
   
   try {
     loading.value = true;
     
+    // 生成单据编号（如果是新增）
+    if (isAddMode.value) {
+      const date = new Date();
+      const dateStr = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
+      const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+      formData.recordNo = `DJXM${dateStr}${randomNum}`;
+    }
+    
+    // 根据各检查项结果，判断整体结果
+    const hasAbnormal = formData.items.some(item => item.result === 'abnormal');
+    formData.result = hasAbnormal ? 'abnormal' : 'normal';
+    formData.status = hasAbnormal ? '异常' : '正常';
+    
     // 根据模式判断是新增还是更新
     if (isAddMode.value) {
       await checkStore.saveRecord({
         ...formData,
-        id: Date.now().toString() // 临时ID，实际应由后端生成
+        id: '' // ID会由后端生成
       });
       showSuccessToast('新增点检单成功');
     } else {
@@ -419,19 +499,20 @@ onMounted(async () => {
   loading.value = true;
   
   try {
-    // 初始化标准列表
-    await initStandardList();
+    // 初始化标准列表和设备列表
+    await Promise.all([initStandardList(), initEquipmentList()]);
     
     // 添加模式
     if (isAddMode.value) {
       // 设置当前时间为点检时间
-      const now = new Date();
-      currentDate.value = now;
-      confirmTimeSelection(now);
+      setCurrentCheckTime();
       
-      // 如果有传入的设备ID，加载设备信息
+      // 如果有传入的设备ID，自动选择该设备
       if (equipmentIdFromQuery.value) {
-        await loadEquipmentInfo(equipmentIdFromQuery.value);
+        const equipment = equipmentList.value.find(e => e.id === equipmentIdFromQuery.value);
+        if (equipment) {
+          selectEquipment(equipment);
+        }
       }
     } 
     // 编辑或查看模式
@@ -444,13 +525,9 @@ onMounted(async () => {
         // 填充表单数据
         Object.assign(formData, record);
         
-        // 解析检查时间字符串为Date对象
-        if (record.checkTime) {
-          const [datePart, timePart] = record.checkTime.split(' ');
-          const [year, month, day] = datePart.split('-').map(Number);
-          const [hours, minutes] = timePart.split(':').map(Number);
-          currentDate.value = new Date(year, month - 1, day, hours, minutes);
-        }
+        // 设置选中的设备和标准
+        selectedEquipmentId.value = record.equipmentId;
+        selectedStandardId.value = record.standardId;
       } else {
         showToast('获取点检单详情失败');
         router.push('/check/list');
@@ -468,13 +545,14 @@ onMounted(async () => {
 <style scoped>
 .record-detail {
   padding-top: 46px;
+  padding-bottom: 56px; /* 为底部固定按钮留出空间 */
   min-height: 100vh;
   background-color: var(--background-color);
 }
 
 .content {
   padding: 8px;
-  padding-bottom: 20px;
+  padding-bottom: 16px;
 }
 
 .form-section {
@@ -544,8 +622,8 @@ onMounted(async () => {
   color: var(--danger-color);
 }
 
-.submit-btn {
-  margin: 24px 16px;
+.form-padding {
+  height: 50px; /* 为固定按钮留出空间 */
 }
 
 .loading-container {
@@ -578,19 +656,32 @@ onMounted(async () => {
 
 .popup-content {
   padding: 8px 0;
-  height: calc(100% - 50px);
+  height: calc(100% - 66px); /* 留出标题和搜索框的高度 */
   overflow-y: auto;
 }
 
-.standard-title {
+.standard-title,
+.equipment-title {
   font-size: 15px;
   color: var(--text-color);
   margin-bottom: 4px;
 }
 
-.standard-desc {
+.standard-desc,
+.equipment-desc {
   font-size: 13px;
   color: var(--text-color-secondary);
+}
+
+.fixed-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px 16px;
+  background-color: #fff;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+  z-index: 99;
 }
 
 :deep(.van-cell-group--inset) {

@@ -43,6 +43,15 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
+    path: '/check/standard/edit/:id',
+    name: 'CheckStandardEdit',
+    component: () => import('../views/check/standard-detail.vue'),
+    meta: {
+      title: '编辑点检标准',
+      showTabBar: false
+    }
+  },
+  {
     path: '/check/standard/:id',
     name: 'CheckStandardDetail',
     component: () => import('../views/check/standard-detail.vue'),
@@ -174,6 +183,146 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
           title: '设备档案'
         }
+      },
+      {
+        path: 'equipment-type',
+        name: 'EquipmentType',
+        component: () => import('../views/basic/equipment-type/list.vue'),
+        meta: {
+          title: '设备类型'
+        }
+      },
+      {
+        path: 'equipment-type/detail/:id',
+        name: 'EquipmentTypeDetail',
+        component: () => import('../views/basic/equipment-type/detail.vue'),
+        meta: {
+          title: '设备类型详情',
+          showTabBar: false
+        }
+      },
+      {
+        path: 'equipment-type/add',
+        name: 'EquipmentTypeAdd',
+        component: () => import('../views/basic/equipment-type/detail.vue'),
+        meta: {
+          title: '新增设备类型',
+          showTabBar: false
+        }
+      },
+      {
+        path: 'equipment-type/edit/:id',
+        name: 'EquipmentTypeEdit',
+        component: () => import('../views/basic/equipment-type/detail.vue'),
+        meta: {
+          title: '编辑设备类型',
+          showTabBar: false
+        }
+      },
+      {
+        path: 'equipment-name',
+        name: 'EquipmentName',
+        component: () => import('../views/basic/equipment-name/list.vue'),
+        meta: {
+          title: '设备名称'
+        }
+      },
+      {
+        path: 'equipment-name/detail/:id',
+        name: 'EquipmentNameDetail',
+        component: () => import('../views/basic/equipment-name/detail.vue'),
+        meta: {
+          title: '设备名称详情',
+          showTabBar: false
+        }
+      },
+      {
+        path: 'equipment-name/add',
+        name: 'EquipmentNameAdd',
+        component: () => import('../views/basic/equipment-name/detail.vue'),
+        meta: {
+          title: '新增设备名称',
+          showTabBar: false
+        }
+      },
+      {
+        path: 'equipment-name/edit/:id',
+        name: 'EquipmentNameEdit',
+        component: () => import('../views/basic/equipment-name/detail.vue'),
+        meta: {
+          title: '编辑设备名称',
+          showTabBar: false
+        }
+      },
+      {
+        path: 'workshop',
+        name: 'Workshop',
+        component: () => import('../views/basic/workshop/list.vue'),
+        meta: {
+          title: '车间'
+        }
+      },
+      {
+        path: 'workshop/detail/:id',
+        name: 'WorkshopDetail',
+        component: () => import('../views/basic/workshop/detail.vue'),
+        meta: {
+          title: '车间详情',
+          showTabBar: false
+        }
+      },
+      {
+        path: 'workshop/add',
+        name: 'WorkshopAdd',
+        component: () => import('../views/basic/workshop/detail.vue'),
+        meta: {
+          title: '新增车间',
+          showTabBar: false
+        }
+      },
+      {
+        path: 'workshop/edit/:id',
+        name: 'WorkshopEdit',
+        component: () => import('../views/basic/workshop/detail.vue'),
+        meta: {
+          title: '编辑车间',
+          showTabBar: false
+        }
+      },
+      {
+        path: 'warehouse',
+        name: 'Warehouse',
+        component: () => import('../views/basic/warehouse/list.vue'),
+        meta: {
+          title: '仓库'
+        }
+      },
+      {
+        path: 'warehouse/detail/:id',
+        name: 'WarehouseDetail',
+        component: () => import('../views/basic/warehouse/detail.vue'),
+        meta: {
+          title: '仓库详情',
+          showTabBar: false
+        }
+      },
+      {
+        path: 'warehouse/add',
+        name: 'WarehouseAdd',
+        component: () => import('../views/basic/warehouse/detail.vue'),
+        meta: {
+          title: '新增仓库',
+          showTabBar: false
+        }
+      },
+      {
+        path: 'warehouse/edit/:id',
+        name: 'WarehouseEdit',
+        component: () => import('../views/basic/warehouse/detail.vue'),
+        meta: {
+          title: '编辑仓库',
+          showTabBar: false
+        }
       }
     ]
   },
@@ -222,6 +371,10 @@ const routes: Array<RouteRecordRaw> = [
     },
     children: [
       {
+        path: '',
+        redirect: '/patrol/list'
+      },
+      {
         path: 'list',
         name: 'PatrolList',
         component: () => import('../views/patrol/list.vue'),
@@ -246,6 +399,66 @@ const routes: Array<RouteRecordRaw> = [
         }
       }
     ]
+  },
+  {
+    path: '/patrol/plan/:id',
+    name: 'PatrolPlanDetail',
+    component: () => import('../views/patrol/plan-detail.vue'),
+    meta: {
+      title: '巡检方案详情',
+      showTabBar: false,
+      mode: 'view'
+    }
+  },
+  {
+    path: '/patrol/plan/edit/:id',
+    name: 'PatrolPlanEdit',
+    component: () => import('../views/patrol/plan-detail.vue'),
+    meta: {
+      title: '编辑巡检方案',
+      showTabBar: false,
+      mode: 'edit'
+    }
+  },
+  {
+    path: '/patrol/plan/add',
+    name: 'PatrolPlanAdd',
+    component: () => import('../views/patrol/plan-detail.vue'),
+    meta: {
+      title: '新增巡检方案',
+      showTabBar: false,
+      mode: 'add'
+    }
+  },
+  {
+    path: '/patrol/record/:id',
+    name: 'PatrolRecordDetail',
+    component: () => import('../views/patrol/record-detail.vue'),
+    meta: {
+      title: '巡检记录详情',
+      showTabBar: false,
+      mode: 'view'
+    }
+  },
+  {
+    path: '/patrol/record/edit/:id',
+    name: 'PatrolRecordEdit',
+    component: () => import('../views/patrol/record-detail.vue'),
+    meta: {
+      title: '编辑巡检记录',
+      showTabBar: false,
+      mode: 'edit'
+    }
+  },
+  {
+    path: '/patrol/record/add',
+    name: 'PatrolRecordAdd',
+    component: () => import('../views/patrol/record-detail.vue'),
+    meta: {
+      title: '新增巡检记录',
+      showTabBar: false,
+      mode: 'add'
+    }
   },
   {
     path: '/repair',

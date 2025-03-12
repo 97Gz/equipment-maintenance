@@ -1,9 +1,9 @@
 <template>
-  <div class="standard-detail">
-    <nav-bar :title="isNewStandard ? '新增点检标准' : '点检标准详情'" />
+  <div class="page-container">
+    <nav-bar :title="getPageTitle()" />
     
-    <div class="content">
-      <van-form @submit="onSubmit">
+    <div class="content" v-if="!loading">
+      <van-form ref="formRef">
         <!-- 基本信息 -->
         <div class="form-section">
           <div class="section-title">基本信息</div>
@@ -13,7 +13,28 @@
               name="name"
               label="标准名称"
               placeholder="请输入点检标准名称"
+              :readonly="isViewMode"
               :rules="[{ required: true, message: '请输入点检标准名称' }]"
+            />
+            <van-field
+              v-model="formData.code"
+              name="code"
+              label="标准编码"
+              placeholder="请输入标准编码"
+              :readonly="isViewMode"
+              :rules="[{ required: true, message: '请输入标准编码' }]"
+            />
+            <van-field
+              v-model="formData.equipmentType"
+              name="equipmentType"
+              label="设备类型"
+              placeholder="请选择设备类型"
+              readonly
+              is-link
+              :disabled="isViewMode"
+              @click="!isViewMode && showTypeSelector()"
+              :right-icon="isViewMode ? '' : 'arrow'"
+              :rules="[{ required: true, message: '请选择设备类型' }]"
             />
           </van-cell-group>
         </div>
@@ -22,69 +43,107 @@
         <div class="form-section">
           <div class="section-header">
             <div class="section-title">点检项目明细</div>
-            <van-button size="small" type="primary" icon="plus" @click="addCheckItem">添加</van-button>
+            <van-button v-if="!isViewMode" size="small" type="primary" icon="plus" @click="addCheckItem">添加</van-button>
           </div>
           
           <div v-if="formData.items.length === 0" class="empty-items">
             <van-empty description="暂无点检项目" />
           </div>
           
-          <van-swipe-cell
-            v-for="(item, index) in formData.items"
-            :key="index"
-            :before-close="(position, done) => beforeCloseSwipe(position, done, index)"
-          >
-            <van-cell-group inset>
-              <van-field
-                v-model="item.name"
-                label="检查项"
-                placeholder="请输入检查项名称"
-                :rules="[{ required: true, message: '请输入检查项名称' }]"
-              />
-              <van-field
-                v-model="item.method"
-                label="检查方法"
-                placeholder="请输入检查方法"
-                :rules="[{ required: true, message: '请输入检查方法' }]"
-              />
-              <div class="range-fields">
-                <van-field
-                  v-model="item.min"
-                  label="最小值"
-                  placeholder="最小值"
-                  :rules="[{ required: true, message: '请输入最小值' }]"
-                />
-                <van-field
-                  v-model="item.max"
-                  label="最大值"
-                  placeholder="最大值"
-                  :rules="[{ required: true, message: '请输入最大值' }]"
-                />
+          <!-- 查看模式的项目列表 -->
+          <template v-if="isViewMode">
+            <div class="check-item-card" v-for="(item, index) in formData.items" :key="index">
+              <div class="item-row">
+                <div class="item-label">检查项:</div>
+                <div class="item-value">{{ item.name }}</div>
               </div>
-            </van-cell-group>
-            <template #right>
-              <van-button square type="danger" text="删除" @click="removeCheckItem(index)" />
-            </template>
-          </van-swipe-cell>
-        </div>
-        
-        <!-- 提交按钮 -->
-        <div class="submit-btn">
-          <van-button round block type="primary" native-type="submit">保存</van-button>
+              <div class="item-row">
+                <div class="item-label">检查方法:</div>
+                <div class="item-value">{{ item.method }}</div>
+              </div>
+              <div class="item-row">
+                <div class="item-label">标准范围:</div>
+                <div class="item-value">{{ item.min }} - {{ item.max }}</div>
+              </div>
+            </div>
+          </template>
+          
+          <!-- 编辑模式的项目列表 -->
+          <template v-else>
+            <van-swipe-cell
+              v-for="(item, index) in formData.items"
+              :key="index"
+              :before-close="(position, done) => beforeCloseSwipe(position, done, index)"
+            >
+              <van-cell-group inset>
+                <van-field
+                  v-model="item.name"
+                  label="检查项"
+                  placeholder="请输入检查项名称"
+                  :rules="[{ required: true, message: '请输入检查项名称' }]"
+                />
+                <van-field
+                  v-model="item.method"
+                  label="检查方法"
+                  placeholder="请输入检查方法"
+                  :rules="[{ required: true, message: '请输入检查方法' }]"
+                />
+                <div class="range-fields">
+                  <van-field
+                    v-model="item.min"
+                    label="最小值"
+                    placeholder="最小值"
+                    :rules="[{ required: true, message: '请输入最小值' }]"
+                  />
+                  <van-field
+                    v-model="item.max"
+                    label="最大值"
+                    placeholder="最大值"
+                    :rules="[{ required: true, message: '请输入最大值' }]"
+                  />
+                </div>
+              </van-cell-group>
+              <template #right>
+                <van-button square type="danger" text="删除" @click="removeCheckItem(index)" />
+              </template>
+            </van-swipe-cell>
+          </template>
         </div>
       </van-form>
     </div>
     
+    <!-- 加载状态 -->
+    <div class="loading-container" v-if="loading">
+      <van-loading type="spinner" color="#1989fa" size="36" />
+      <p class="loading-text">加载中...</p>
+    </div>
+    
     <!-- 设备类型选择弹窗 -->
-    <van-popup v-model:show="showTypePopup" position="bottom">
-      <van-picker
-        title="选择设备类型"
-        :columns="typeOptions"
-        @confirm="onTypeConfirm"
-        @cancel="showTypePopup = false"
-        show-toolbar
-      />
+    <van-popup v-model:show="showTypePopup" position="bottom" :style="{ height: '40%' }">
+      <div class="popup-header">
+        <div class="popup-title">选择设备类型</div>
+        <van-icon name="cross" @click="showTypePopup = false" />
+      </div>
+      <div class="popup-content">
+        <van-radio-group v-model="selectedType">
+          <van-cell-group>
+            <van-cell v-for="type in typeOptions" :key="type" clickable @click="selectType(type)">
+              <template #title>
+                <span class="item-title">{{ type }}</span>
+              </template>
+              <template #right-icon>
+                <van-radio :name="type" />
+              </template>
+            </van-cell>
+          </van-cell-group>
+        </van-radio-group>
+      </div>
     </van-popup>
+    
+    <!-- 固定在底部的保存按钮 -->
+    <div class="fixed-bottom" v-if="!loading && !isViewMode">
+      <van-button round block type="primary" @click="onSubmit">保存</van-button>
+    </div>
   </div>
 </template>
 
@@ -93,14 +152,34 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { showToast, showSuccessToast, showDialog } from 'vant';
 import NavBar from '@/components/NavBar.vue';
+import { useCheckStore } from '@/store/check';
 
 const route = useRoute();
 const router = useRouter();
+const checkStore = useCheckStore();
+const loading = ref(false);
+const formRef = ref(null);
 
 // 判断是新增还是编辑
 const isNewStandard = computed(() => {
-  return route.name === 'CheckStandardAdd' || route.params.id === 'add';
+  return route.name === 'CheckStandardAdd' || route.path.includes('/add');
 });
+
+// 判断是查看模式还是编辑模式
+const isViewMode = computed(() => {
+  return route.name === 'CheckStandardDetail' && !route.path.includes('/edit') && !route.path.includes('/add');
+});
+
+// 获取页面标题
+const getPageTitle = () => {
+  if (isNewStandard.value) {
+    return '新增点检标准';
+  } else if (isViewMode.value) {
+    return '点检标准详情';
+  } else {
+    return '编辑点检标准';
+  }
+};
 
 // 点检项目数据结构
 interface CheckItem {
@@ -111,26 +190,19 @@ interface CheckItem {
   max: string;
 }
 
-// 点检标准数据结构
-interface CheckStandard {
-  id: string;
-  name: string;
-  equipmentType: string;
-  itemCount: number;
-  items: CheckItem[];
-}
-
 // 表单数据
-const formData = ref<Partial<CheckStandard>>({
+const formData = ref({
   id: '',
   name: '',
+  code: '',
   equipmentType: '',
   itemCount: 0,
-  items: []
+  items: [] as CheckItem[]
 });
 
 // 弹窗控制
 const showTypePopup = ref(false);
+const selectedType = ref('');
 
 // 设备类型选项
 const typeOptions = [
@@ -141,15 +213,22 @@ const typeOptions = [
   '冷却设备'
 ];
 
-// 设备类型确认
-const onTypeConfirm = (value: string) => {
-  formData.value.equipmentType = value;
+// 显示类型选择器
+const showTypeSelector = () => {
+  selectedType.value = formData.value.equipmentType;
+  showTypePopup.value = true;
+};
+
+// 选择设备类型
+const selectType = (type: string) => {
+  formData.value.equipmentType = type;
+  selectedType.value = type;
   showTypePopup.value = false;
 };
 
 // 添加点检项目
 const addCheckItem = () => {
-  formData.value.items?.push({
+  formData.value.items.push({
     id: `ITEM${Date.now().toString().slice(-6)}`,
     name: '',
     method: '',
@@ -160,7 +239,7 @@ const addCheckItem = () => {
 
 // 删除点检项目
 const removeCheckItem = (index: number) => {
-  formData.value.items?.splice(index, 1);
+  formData.value.items.splice(index, 1);
 };
 
 // 滑动删除前确认
@@ -182,64 +261,84 @@ const beforeCloseSwipe = (position: 'left' | 'right' | 'cell' | 'outside', done:
 };
 
 // 表单提交
-const onSubmit = () => {
-  // 更新项目数量
-  formData.value.itemCount = formData.value.items?.length || 0;
-  
-  if (isNewStandard.value) {
-    // 新增点检标准
-    formData.value.id = `STD${Date.now().toString().slice(-6)}`;
-    // 这里应该调用API保存点检标准
-    showSuccessToast('点检标准添加成功');
-  } else {
-    // 编辑点检标准
-    // 这里应该调用API更新点检标准
-    showSuccessToast('点检标准已更新');
+const onSubmit = async () => {
+  try {
+    // 验证表单
+    if (!formData.value.name) {
+      showToast('请输入标准名称');
+      return;
+    }
+    if (!formData.value.code) {
+      showToast('请输入标准编码');
+      return;
+    }
+    if (!formData.value.equipmentType) {
+      showToast('请选择设备类型');
+      return;
+    }
+    if (formData.value.items.length === 0) {
+      showToast('请添加至少一个点检项目');
+      return;
+    }
+    
+    // 验证所有检查项是否填写完整
+    for (const item of formData.value.items) {
+      if (!item.name) {
+        showToast('请填写检查项名称');
+        return;
+      }
+      if (!item.method) {
+        showToast('请填写检查方法');
+        return;
+      }
+    }
+    
+    // 更新项目数量
+    formData.value.itemCount = formData.value.items.length;
+    
+    // 开始提交
+    loading.value = true;
+    
+    if (isNewStandard.value) {
+      // 新增点检标准
+      await checkStore.saveStandard(formData.value);
+      showSuccessToast('点检标准添加成功');
+    } else {
+      // 编辑点检标准
+      await checkStore.saveStandard(formData.value);
+      showSuccessToast('点检标准已更新');
+    }
+    
+    // 返回点检标准列表页
+    setTimeout(() => {
+      router.push('/check/standard');
+    }, 1500);
+  } catch (error) {
+    console.error('保存点检标准失败', error);
+    showToast('保存失败');
+  } finally {
+    loading.value = false;
   }
-  
-  // 返回点检标准列表页
-  setTimeout(() => {
-    router.push('/check/standard');
-  }, 1500);
 };
 
-// 模拟点检标准数据
-const mockStandards: Record<string, CheckStandard> = {
-  'STD001': {
-    id: 'STD001',
-    name: '机床设备日常点检标准',
-    equipmentType: '机床设备',
-    itemCount: 5,
-    items: [
-      { id: 'ITEM001', name: '主轴转速', method: '转速表测量', min: '1000', max: '2000' },
-      { id: 'ITEM002', name: '油压', method: '压力表测量', min: '0.5', max: '0.8' },
-      { id: 'ITEM003', name: '温度', method: '温度计测量', min: '20', max: '40' },
-      { id: 'ITEM004', name: '噪音', method: '噪音计测量', min: '0', max: '70' },
-      { id: 'ITEM005', name: '振动', method: '振动测量仪', min: '0', max: '5' }
-    ]
-  },
-  'STD002': {
-    id: 'STD002',
-    name: '包装设备点检标准',
-    equipmentType: '包装设备',
-    itemCount: 4,
-    items: [
-      { id: 'ITEM006', name: '封口温度', method: '温度计测量', min: '120', max: '150' },
-      { id: 'ITEM007', name: '传送带速度', method: '速度计测量', min: '10', max: '20' },
-      { id: 'ITEM008', name: '气压', method: '压力表测量', min: '0.4', max: '0.6' },
-      { id: 'ITEM009', name: '电压', method: '电压表测量', min: '220', max: '240' }
-    ]
-  },
-  'STD003': {
-    id: 'STD003',
-    name: '电力设备点检标准',
-    equipmentType: '电力设备',
-    itemCount: 3,
-    items: [
-      { id: 'ITEM010', name: '电压', method: '电压表测量', min: '380', max: '420' },
-      { id: 'ITEM011', name: '电流', method: '电流表测量', min: '10', max: '50' },
-      { id: 'ITEM012', name: '温度', method: '红外测温仪', min: '0', max: '60' }
-    ]
+// 获取点检标准详情
+const fetchStandardDetail = async (id: string) => {
+  try {
+    loading.value = true;
+    const standard = await checkStore.fetchStandardDetail(id);
+    if (standard) {
+      formData.value = { ...standard };
+      selectedType.value = standard.equipmentType;
+    } else {
+      showToast('点检标准不存在');
+      router.back();
+    }
+  } catch (error) {
+    console.error('获取点检标准详情失败', error);
+    showToast('获取点检标准详情失败');
+    router.back();
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -247,53 +346,13 @@ const mockStandards: Record<string, CheckStandard> = {
 onMounted(() => {
   if (!isNewStandard.value) {
     const id = route.params.id as string;
-    if (id && mockStandards[id]) {
-      formData.value = { ...mockStandards[id] };
-    } else {
-      showToast('点检标准不存在');
-      router.back();
-    }
+    fetchStandardDetail(id);
   }
 });
 </script>
 
 <style scoped>
-.standard-detail {
-  padding-top: 46px;
-  min-height: 100vh;
-  background-color: var(--background-color);
-}
-
-.content {
-  padding: 8px;
-  padding-bottom: 20px;
-}
-
-.form-section {
-  margin-bottom: 16px;
-}
-
-.section-title {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--text-color);
-  margin-bottom: 8px;
-  padding-left: 12px;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.empty-items {
-  background-color: var(--card-background);
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 12px;
-}
+/* 使用全局样式 */
 
 .range-fields {
   display: flex;
@@ -304,17 +363,8 @@ onMounted(() => {
   flex: 1;
 }
 
-.submit-btn {
-  margin: 24px 16px;
-}
-
 :deep(.van-cell-group--inset) {
   margin: 0 0 8px 0;
-}
-
-:deep(.van-field__label) {
-  width: 90px;
-  color: var(--text-color);
 }
 
 :deep(.van-swipe-cell__right) {
@@ -324,5 +374,30 @@ onMounted(() => {
 
 :deep(.van-button--danger) {
   height: 100%;
+}
+
+.check-item-card {
+  background-color: var(--card-background);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.item-row {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.item-label {
+  width: 80px;
+  color: var(--text-color-secondary);
+  font-size: 14px;
+}
+
+.item-value {
+  flex: 1;
+  font-size: 14px;
+  color: var(--text-color);
 }
 </style> 

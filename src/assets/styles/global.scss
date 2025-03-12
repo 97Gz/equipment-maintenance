@@ -1,0 +1,191 @@
+/* 全局样式 */
+
+/* 页面容器 */
+.page-container {
+  padding-top: 46px;
+  padding-bottom: 56px; /* 为底部固定按钮留出空间 */
+  min-height: 100vh;
+  background-color: var(--background-color);
+}
+
+/* 内容区域 */
+.content {
+  padding: 8px;
+  padding-bottom: 16px;
+}
+
+/* 筛选区域 */
+.filter-area {
+  margin-bottom: 12px;
+  background-color: var(--card-background);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.date-filter {
+  margin-top: 4px;
+}
+
+/* 列表区域 */
+.list-container {
+  margin-top: 8px;
+}
+
+/* 卡片样式 */
+.card {
+  background-color: var(--card-background);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  padding: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.card-content {
+  margin-bottom: 12px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: var(--text-color-secondary);
+}
+
+.info-item .van-icon {
+  margin-right: 4px;
+  color: var(--primary-color);
+}
+
+.card-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+}
+
+.button-group .van-button {
+  flex: 1;
+  min-width: 60px;
+}
+
+/* 表单样式 */
+.form-section {
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-color);
+  margin-bottom: 8px;
+  padding-left: 12px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+/* 弹窗样式 */
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.popup-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.popup-content {
+  padding: 8px 0;
+  height: calc(100% - 66px); /* 留出标题和搜索框的高度 */
+  overflow-y: auto;
+}
+
+/* 对话框样式 */
+.dialog-content {
+  padding: 16px;
+  text-align: center;
+}
+
+/* 固定底部按钮 */
+.fixed-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px 16px;
+  background-color: #fff;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+  z-index: 99;
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.loading-text {
+  margin-top: 12px;
+  color: var(--text-color-secondary);
+  font-size: 14px;
+}
+
+/* 通用样式覆盖 */
+.van-search {
+  padding: 0;
+  background-color: transparent;
+}
+
+.van-search__content {
+  background-color: var(--card-background);
+}
+
+.van-radio__label {
+  margin-left: 4px;
+}
+
+/* 标题和描述 */
+.item-title {
+  font-size: 15px;
+  color: var(--text-color);
+  margin-bottom: 4px;
+}
+
+.item-desc {
+  font-size: 13px;
+  color: var(--text-color-secondary);
+} 

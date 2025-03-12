@@ -168,11 +168,11 @@ export async function handleMockRequest(config: AxiosRequestConfig): Promise<any
 const mockEquipmentList: Equipment[] = [
   {
     id: 'EQ001',
+    code: 'CNC-001',
     type: '机床设备',
     name: 'CNC加工中心',
     status: 'normal',
     model: 'VMC-850',
-    image: 'https://fastly.jsdelivr.net/npm/@vant/assets/apple-1.jpeg',
     workshop: '机加工车间',
     location: 'A区-01',
     manager: '张工',
@@ -209,40 +209,40 @@ const mockEquipmentList: Equipment[] = [
   },
   {
     id: 'EQ002',
-    type: '注塑设备',
-    name: '注塑机B',
-    status: 'maintenance',
-    model: 'INJ-200',
-    image: 'https://fastly.jsdelivr.net/npm/@vant/assets/apple-2.jpeg',
-    workshop: '注塑车间',
-    location: 'B区-03',
+    code: 'INJ-001',
+    type: '包装设备',
+    name: '全自动包装机',
+    status: 'warning',
+    model: 'APM-300',
+    workshop: '包装车间',
+    location: 'B区-02',
     manager: '李工',
-    managerContact: '13900139000',
-    manufacturer: '某注塑机制造有限公司',
-    purchaseDate: '2022-03-20',
-    enableDate: '2022-04-01',
+    managerContact: '13800138001',
+    manufacturer: '某包装设备制造有限公司',
+    purchaseDate: '2021-06-10',
+    enableDate: '2021-07-01',
     checkInfo: {
-      standardName: '注塑机月度点检标准',
-      standardCode: 'INJ-MONTHLY-001',
-      lastCheckTime: '2023-08-15 14:20:00'
+      standardName: '包装设备点检标准',
+      standardCode: 'PKG-DAILY-001',
+      lastCheckTime: '2023-08-11 10:15:00'
     },
     supplier: {
       id: 'S002',
       code: 'SUP002',
-      name: '某塑料机械有限公司'
+      name: '某包装设备销售有限公司'
     },
     patrolInfo: {
-      planName: '日常巡检',
-      planCode: 'P001',
-      scheduledDate: '每日',
-      lastPatrolTime: '2023-08-25 08:30:00',
+      planName: '周巡检',
+      planCode: 'P002',
+      scheduledDate: '每周一、三、五',
+      lastPatrolTime: '2023-08-23 14:30:00',
       dailyCount: 1
     },
     repairInfo: {
-      lastRepairTime: '2023-08-18'
+      lastRepairTime: '2023-07-05'
     },
     maintenanceInfo: {
-      lastMaintenanceTime: '2023-06-20'
+      lastMaintenanceTime: '2023-08-01'
     },
     scrapInfo: {
       scrapTime: ''
@@ -250,43 +250,166 @@ const mockEquipmentList: Equipment[] = [
   },
   {
     id: 'EQ003',
+    code: 'ELEC-001',
     type: '电力设备',
-    name: '配电柜C',
-    status: 'normal',
-    model: 'PDC-500',
-    image: 'https://fastly.jsdelivr.net/npm/@vant/assets/apple-3.jpeg',
-    workshop: '动力车间',
-    location: 'C区-05',
+    name: '变压器',
+    status: 'repairing',
+    model: 'TF-500KVA',
+    workshop: '电力车间',
+    location: 'C区-01',
     manager: '王工',
-    managerContact: '13700137000',
-    manufacturer: '某电气设备有限公司',
-    purchaseDate: '2022-05-10',
-    enableDate: '2022-05-20',
+    managerContact: '13800138002',
+    manufacturer: '某电气设备制造有限公司',
+    purchaseDate: '2020-11-20',
+    enableDate: '2020-12-15',
     checkInfo: {
-      standardName: '电气设备安全点检标准',
+      standardName: '电力设备安全点检标准',
       standardCode: 'ELEC-SAFETY-001',
-      lastCheckTime: '2023-08-20 10:15:00'
+      lastCheckTime: '2023-08-12 08:45:00'
     },
     supplier: {
       id: 'S003',
       code: 'SUP003',
-      name: '某电气工程有限公司'
+      name: '某电气设备销售有限公司'
     },
     patrolInfo: {
       planName: '日常巡检',
-      planCode: 'P001',
+      planCode: 'P003',
       scheduledDate: '每日',
-      lastPatrolTime: '2023-08-25 09:00:00',
-      dailyCount: 1
+      lastPatrolTime: '2023-08-25 09:20:00',
+      dailyCount: 3
     },
     repairInfo: {
-      lastRepairTime: ''
+      lastRepairTime: '2023-08-20'
     },
     maintenanceInfo: {
-      lastMaintenanceTime: '2023-07-30'
+      lastMaintenanceTime: '2023-07-20'
     },
     scrapInfo: {
       scrapTime: ''
+    }
+  },
+  {
+    id: 'EQ004',
+    code: 'TEST-001',
+    type: '检测设备',
+    name: '三坐标测量机',
+    status: 'standby',
+    model: 'CMM-500',
+    workshop: '质检车间',
+    location: 'D区-01',
+    manager: '赵工',
+    managerContact: '13800138003',
+    manufacturer: '某精密仪器制造有限公司',
+    purchaseDate: '2019-10-15',
+    enableDate: '2019-11-01',
+    checkInfo: {
+      standardName: '精密测量设备点检标准',
+      standardCode: 'TEST-PREC-001',
+      lastCheckTime: '2023-08-13 15:30:00'
+    },
+    supplier: {
+      id: 'S004',
+      code: 'SUP004',
+      name: '某精密仪器销售有限公司'
+    },
+    patrolInfo: {
+      planName: '周巡检',
+      planCode: 'P004',
+      scheduledDate: '每周二、四',
+      lastPatrolTime: '2023-08-24 11:15:00',
+      dailyCount: 1
+    },
+    repairInfo: {
+      lastRepairTime: '2023-06-10'
+    },
+    maintenanceInfo: {
+      lastMaintenanceTime: '2023-08-05'
+    },
+    scrapInfo: {
+      scrapTime: ''
+    }
+  },
+  {
+    id: 'EQ005',
+    code: 'COOL-001',
+    type: '冷却设备',
+    name: '工业冷水机',
+    status: 'disabled',
+    model: 'ICH-20T',
+    workshop: '注塑车间',
+    location: 'E区-01',
+    manager: '钱工',
+    managerContact: '13800138004',
+    manufacturer: '某冷却设备制造有限公司',
+    purchaseDate: '2018-05-10',
+    enableDate: '2018-06-01',
+    checkInfo: {
+      standardName: '冷却设备点检标准',
+      standardCode: 'COOL-DAILY-001',
+      lastCheckTime: '2023-08-14 10:45:00'
+    },
+    supplier: {
+      id: 'S005',
+      code: 'SUP005',
+      name: '某冷却设备销售有限公司'
+    },
+    patrolInfo: {
+      planName: '日常巡检',
+      planCode: 'P005',
+      scheduledDate: '每日',
+      lastPatrolTime: '2023-08-24 16:30:00',
+      dailyCount: 2
+    },
+    repairInfo: {
+      lastRepairTime: '2023-08-18'
+    },
+    maintenanceInfo: {
+      lastMaintenanceTime: '2023-07-25'
+    },
+    scrapInfo: {
+      scrapTime: ''
+    }
+  },
+  {
+    id: 'EQ006',
+    code: 'SCRAP-001',
+    type: '冷却设备',
+    name: '旧工业冷水机',
+    status: 'scrapped',
+    model: 'ICH-10T',
+    workshop: '旧设备库',
+    location: 'F区-05',
+    manager: '孙工',
+    managerContact: '13800138005',
+    manufacturer: '某冷却设备制造有限公司',
+    purchaseDate: '2015-03-20',
+    enableDate: '2015-04-01',
+    checkInfo: {
+      standardName: '',
+      standardCode: '',
+      lastCheckTime: ''
+    },
+    supplier: {
+      id: 'S005',
+      code: 'SUP005',
+      name: '某冷却设备销售有限公司'
+    },
+    patrolInfo: {
+      planName: '',
+      planCode: '',
+      scheduledDate: '',
+      lastPatrolTime: '',
+      dailyCount: 0
+    },
+    repairInfo: {
+      lastRepairTime: '2022-11-20'
+    },
+    maintenanceInfo: {
+      lastMaintenanceTime: '2022-10-15'
+    },
+    scrapInfo: {
+      scrapTime: '2023-01-10'
     }
   }
 ];
@@ -409,6 +532,7 @@ const mockStandardList: CheckStandard[] = [
 const mockRecordList: CheckRecord[] = [
   {
     id: 'REC001',
+    recordNo: 'DJXM20230810001',
     equipmentId: 'EQ001',
     equipmentCode: 'CNC-001',
     equipmentName: '数控车床A',
@@ -455,38 +579,46 @@ const mockRecordList: CheckRecord[] = [
   },
   {
     id: 'REC002',
+    recordNo: 'DJXM20230811001',
     equipmentId: 'EQ002',
     equipmentCode: 'INJ-001',
-    equipmentName: '注塑机B',
-    workshop: '注塑车间',
-    location: 'B区-03',
+    equipmentName: '全自动包装机',
+    workshop: '包装车间',
+    location: 'B区-02',
     standardId: 'STD002',
-    standardName: '注塑机月度点检标准',
-    standardCode: 'INJ-MONTHLY-001',
-    checkTime: '2023-08-15 14:20:00',
+    standardName: '包装设备点检标准',
+    standardCode: 'PKG-DAILY-001',
+    checkTime: '2023-08-11 10:15:00',
     checker: '李工',
     result: 'abnormal',
     status: '异常',
-    createTime: '2023-08-15 14:35:00',
+    createTime: '2023-08-11 10:30:00',
     items: [
       {
-        name: '注射压力',
-        method: '压力表测量',
-        standardRange: '80 - 120',
+        name: '封口温度',
+        method: '温度计测量',
+        standardRange: '120 - 150',
         result: 'normal',
         remark: ''
       },
       {
-        name: '模具温度',
-        method: '温度计测量',
-        standardRange: '150 - 200',
+        name: '传送带速度',
+        method: '速度计测量',
+        standardRange: '10 - 20',
         result: 'abnormal',
-        remark: '温度波动较大，需要检查加热系统'
+        remark: '传送带速度异常，需要调整'
       },
       {
-        name: '锁模力',
-        method: '力矩扳手测量',
-        standardRange: '500 - 800',
+        name: '气压',
+        method: '压力表测量',
+        standardRange: '0.4 - 0.6',
+        result: 'normal',
+        remark: ''
+      },
+      {
+        name: '电压',
+        method: '电压表测量',
+        standardRange: '220 - 240',
         result: 'normal',
         remark: ''
       }
@@ -494,38 +626,39 @@ const mockRecordList: CheckRecord[] = [
   },
   {
     id: 'REC003',
+    recordNo: 'DJXM20230812001',
     equipmentId: 'EQ003',
     equipmentCode: 'ELEC-001',
-    equipmentName: '配电柜C',
-    workshop: '动力车间',
-    location: 'C区-05',
+    equipmentName: '变压器',
+    workshop: '电力车间',
+    location: 'C区-01',
     standardId: 'STD003',
-    standardName: '电气设备安全点检标准',
+    standardName: '电力设备安全点检标准',
     standardCode: 'ELEC-SAFETY-001',
-    checkTime: '2023-08-20 10:15:00',
+    checkTime: '2023-08-12 08:45:00',
     checker: '王工',
     result: 'normal',
     status: '正常',
-    createTime: '2023-08-20 10:30:00',
+    createTime: '2023-08-12 09:00:00',
     items: [
       {
-        name: '绝缘电阻',
-        method: '兆欧表测量',
-        standardRange: '0.5 - ',
+        name: '电压',
+        method: '电压表测量',
+        standardRange: '380 - 420',
         result: 'normal',
         remark: ''
       },
       {
-        name: '接地电阻',
-        method: '接地电阻测试仪',
-        standardRange: ' - 4',
+        name: '电流',
+        method: '电流表测量',
+        standardRange: '10 - 50',
         result: 'normal',
         remark: ''
       },
       {
-        name: '漏电流',
-        method: '漏电流测试仪',
-        standardRange: ' - 30',
+        name: '温度',
+        method: '红外测温仪',
+        standardRange: '0 - 60',
         result: 'normal',
         remark: ''
       }

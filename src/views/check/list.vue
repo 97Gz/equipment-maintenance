@@ -3,16 +3,28 @@
     <nav-bar title="设备点检单" />
     
     <div class="content">
-      <div class="search-bar">
+      <!-- 搜索和筛选区域 -->
+      <div class="filter-area">
         <van-search
           v-model="searchText"
-          placeholder="搜索设备名称"
+          placeholder="搜索单据编号/设备名称"
           shape="round"
           @search="onSearch"
           @clear="onClear"
         />
+        
+        <!-- 日期筛选 -->
+        <div class="date-filter">
+          <van-cell 
+            title="选择日期" 
+            :value="filterDate || '全部'" 
+            is-link 
+            @click="showDatePicker = true"
+          />
+        </div>
       </div>
       
+      <!-- 点检记录列表 -->
       <div class="check-list">
         <template v-if="loading">
           <van-skeleton title :row="3" v-for="i in 3" :key="i" />
@@ -21,7 +33,7 @@
         <template v-else-if="filteredRecords.length">
           <div class="check-card" v-for="record in filteredRecords" :key="record.id">
             <div class="card-header">
-              <div class="card-title">{{ record.equipmentName }}</div>
+              <div class="card-title">{{ record.recordNo }}</div>
               <van-tag :type="getStatusType(record.result)">
                 {{ record.result === 'normal' ? '正常' : '异常' }}
               </van-tag>
@@ -29,30 +41,32 @@
             <div class="card-content">
               <div class="info-row">
                 <div class="info-item">
-                  <van-icon name="bar-code" />
-                  <span>设备编码：{{ record.equipmentCode }}</span>
+                  <van-icon name="shop-o" />
+                  <span>{{ record.equipmentName }}</span>
                 </div>
                 <div class="info-item">
-                  <van-icon name="notes-o" />
-                  <span>点检标准：{{ record.standardName }}</span>
+                  <van-icon name="bar-code" />
+                  <span>{{ record.equipmentCode }}</span>
                 </div>
               </div>
               <div class="info-row">
                 <div class="info-item">
                   <van-icon name="clock-o" />
-                  <span>点检时间：{{ record.checkTime }}</span>
+                  <span>{{ record.checkTime }}</span>
                 </div>
                 <div class="info-item">
                   <van-icon name="contact" />
-                  <span>点检人员：{{ record.checker }}</span>
+                  <span>{{ record.checker }}</span>
                 </div>
               </div>
             </div>
             <div class="card-footer">
-              <van-button size="small" type="primary" @click="viewDetail(record.id)">查看</van-button>
-              <van-button size="small" plain @click="editRecord(record.id)">编辑</van-button>
-              <van-button size="small" type="success" plain @click="reportRepair(record)">报修</van-button>
-              <van-button size="small" type="danger" plain @click="confirmDelete(record)">删除</van-button>
+              <div class="button-group">
+                <van-button size="small" type="primary" @click="viewDetail(record.id)">查看</van-button>
+                <van-button size="small" plain @click="editRecord(record.id)">编辑</van-button>
+                <van-button size="small" type="success" plain @click="reportRepair(record)">报修</van-button>
+                <van-button size="small" type="danger" plain @click="confirmDelete(record)">删除</van-button>
+              </div>
             </div>
           </div>
         </template>
@@ -107,13 +121,25 @@
       </div>
     </van-dialog>
     
-    <!-- 添加按钮 -->
-    <van-fab
-      class="add-button"
-      icon="plus"
-      type="primary"
-      @click="addRecord"
+    <!-- 日期选择器 -->
+    <van-calendar
+      v-model:show="showDatePicker"
+      @confirm="onSelectDate"
+      :show-confirm="true"
+      :round="false"
+      title="选择筛选日期"
+      color="#1989fa"
     />
+    
+    <!-- 固定在底部的添加按钮 -->
+    <div class="fixed-bottom">
+      <van-button 
+        type="primary" 
+        block 
+        @click="addRecord"
+        icon="plus"
+      >新增点检单</van-button>
+    </div>
   </div>
 </template>
 
@@ -129,6 +155,10 @@ const checkStore = useCheckStore();
 const loading = ref(true);
 const searchText = ref('');
 
+// 日期筛选相关
+const showDatePicker = ref(false);
+const filterDate = ref('');
+
 // 当前选中的记录
 const currentRecord = ref<any>(null);
 
@@ -143,20 +173,32 @@ const repairForm = ref({
   phone: ''
 });
 
-// 筛选后的点检记录列表
+// 根据日期和搜索文本筛选的点检记录列表
 const filteredRecords = computed(() => {
   if (!checkStore.getRecordList) return [];
   
-  if (!searchText.value) {
-    return checkStore.getRecordList;
+  let records = checkStore.getRecordList;
+  
+  // 应用日期筛选
+  if (filterDate.value) {
+    const filterDateStr = filterDate.value.split(' ')[0]; // 只取日期部分，不考虑时间
+    records = records.filter(item => 
+      item.checkTime.startsWith(filterDateStr)
+    );
   }
   
-  const keyword = searchText.value.toLowerCase();
-  return checkStore.getRecordList.filter(
-    item => 
-      item.equipmentName.toLowerCase().includes(keyword) || 
-      item.equipmentCode.toLowerCase().includes(keyword)
-  );
+  // 应用搜索文本筛选
+  if (searchText.value) {
+    const keyword = searchText.value.toLowerCase();
+    records = records.filter(
+      item => 
+        item.recordNo.toLowerCase().includes(keyword) || 
+        item.equipmentName.toLowerCase().includes(keyword) || 
+        item.equipmentCode.toLowerCase().includes(keyword)
+    );
+  }
+  
+  return records;
 });
 
 // 获取状态类型
@@ -172,6 +214,22 @@ const onSearch = () => {
 // 清除搜索内容
 const onClear = () => {
   searchText.value = '';
+};
+
+// 选择日期回调
+const onSelectDate = (date: Date) => {
+  // 格式化日期为'YYYY-MM-DD'
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  
+  filterDate.value = `${year}-${month}-${day}`;
+  showDatePicker.value = false;
+};
+
+// 清除日期筛选
+const clearDateFilter = () => {
+  filterDate.value = '';
 };
 
 // 查看详情
@@ -243,17 +301,25 @@ onMounted(async () => {
 <style scoped>
 .check-list-container {
   padding-top: 46px;
-  padding-bottom: 50px;
+  padding-bottom: 56px; /* 为底部固定按钮留出空间 */
   min-height: 100vh;
   background-color: var(--background-color);
 }
 
 .content {
   padding: 8px;
+  padding-bottom: 16px;
 }
 
-.search-bar {
-  margin-bottom: 8px;
+.filter-area {
+  margin-bottom: 12px;
+  background-color: var(--card-background);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.date-filter {
+  margin-top: 4px;
 }
 
 .check-list {
@@ -305,7 +371,17 @@ onMounted(async () => {
 
 .card-footer {
   display: flex;
+  justify-content: flex-end; /* 让按钮在右侧 */
+}
+
+.button-group {
+  display: flex;
   gap: 8px;
+}
+
+.button-group .van-button {
+  flex: 1;
+  min-width: 60px; /* 设置按钮最小宽度 */
 }
 
 .dialog-content {
@@ -317,6 +393,17 @@ onMounted(async () => {
   padding: 16px;
 }
 
+.fixed-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px 16px;
+  background-color: #fff;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+  z-index: 99;
+}
+
 :deep(.van-search) {
   padding: 0;
   background-color: transparent;
@@ -324,12 +411,5 @@ onMounted(async () => {
 
 :deep(.van-search__content) {
   background-color: var(--card-background);
-}
-
-.add-button {
-  position: fixed;
-  right: 16px;
-  bottom: 66px;
-  z-index: 10;
 }
 </style> 

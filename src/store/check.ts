@@ -44,6 +44,7 @@ export interface CheckStandard {
 // 点检记录接口
 export interface CheckRecord {
   id: string;
+  recordNo: string;           // 点检单号
   equipmentId: string;
   equipmentCode: string;
   equipmentName: string;
@@ -53,10 +54,10 @@ export interface CheckRecord {
   standardName: string;
   standardCode: string;
   checkTime: string;
-  checker: string;
-  result: string;
+  checker: string;            // 点检人员
+  result: string;             // 点检结果
   status: string;
-  createTime?: string;
+  createTime: string;
   items: CheckRecordItem[];
 }
 

@@ -26,6 +26,29 @@
         </div>
       </div>
       
+      <!-- 基础资料区块 -->
+      <div class="menu-section">
+        <h2 class="section-title">基础资料</h2>
+        <div class="menu-grid">
+          <div class="menu-item" @click="navigateTo('/basic/equipment-type')">
+            <van-icon name="label-o" size="28" />
+            <span>设备类型</span>
+          </div>
+          <div class="menu-item" @click="navigateTo('/basic/equipment-name')">
+            <van-icon name="records" size="28" />
+            <span>设备名称</span>
+          </div>
+          <div class="menu-item" @click="navigateTo('/basic/workshop')">
+            <van-icon name="shop-o" size="28" />
+            <span>车间</span>
+          </div>
+          <div class="menu-item" @click="navigateTo('/basic/warehouse')">
+            <van-icon name="logistics" size="28" />
+            <span>仓库</span>
+          </div>
+        </div>
+      </div>
+      
       <!-- 功能区块 -->
       <div class="menu-section">
         <h2 class="section-title">设备管理</h2>

@@ -47,11 +47,13 @@ request.interceptors.response.use(
 
 // 重写原始方法，添加Mock处理
 const originalGet = request.get;
-request.get = async function(url, config) {
+request.get = (async function(url, config) {
   try {
+    console.log('请求URL:', url);
     if (mockService.shouldMock(url)) {
       console.log('Mock拦截Get请求:', url);
       const mockResponse = await mockService.handleRequest(url, 'GET');
+      console.log('Mock响应:', mockResponse);
       return { data: mockResponse };
     }
     return originalGet(url, config);
@@ -59,14 +61,16 @@ request.get = async function(url, config) {
     console.error('请求处理错误:', error);
     throw error;
   }
-};
+}) as any;
 
 const originalPost = request.post;
-request.post = async function(url, data, config) {
+request.post = (async function(url, data, config) {
   try {
+    console.log('请求URL:', url, '数据:', data);
     if (mockService.shouldMock(url)) {
       console.log('Mock拦截Post请求:', url);
       const mockResponse = await mockService.handleRequest(url, 'POST', data);
+      console.log('Mock响应:', mockResponse);
       return { data: mockResponse };
     }
     return originalPost(url, data, config);
@@ -74,14 +78,16 @@ request.post = async function(url, data, config) {
     console.error('请求处理错误:', error);
     throw error;
   }
-};
+}) as any;
 
 const originalDelete = request.delete;
-request.delete = async function(url, config) {
+request.delete = (async function(url, config) {
   try {
+    console.log('请求URL:', url);
     if (mockService.shouldMock(url)) {
       console.log('Mock拦截Delete请求:', url);
       const mockResponse = await mockService.handleRequest(url, 'DELETE');
+      console.log('Mock响应:', mockResponse);
       return { data: mockResponse };
     }
     return originalDelete(url, config);
@@ -89,14 +95,16 @@ request.delete = async function(url, config) {
     console.error('请求处理错误:', error);
     throw error;
   }
-};
+}) as any;
 
 const originalPut = request.put;
-request.put = async function(url, data, config) {
+request.put = (async function(url, data, config) {
   try {
+    console.log('请求URL:', url, '数据:', data);
     if (mockService.shouldMock(url)) {
       console.log('Mock拦截Put请求:', url);
       const mockResponse = await mockService.handleRequest(url, 'PUT', data);
+      console.log('Mock响应:', mockResponse);
       return { data: mockResponse };
     }
     return originalPut(url, data, config);
@@ -104,7 +112,7 @@ request.put = async function(url, data, config) {
     console.error('请求处理错误:', error);
     throw error;
   }
-};
+}) as any;
 
 // 导出请求实例
 export type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';

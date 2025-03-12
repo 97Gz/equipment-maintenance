@@ -62,14 +62,20 @@ export const useEquipmentStore = defineStore('equipment', {
     // 获取设备列表
     async fetchEquipmentList() {
       try {
+        console.log('Store: 开始获取设备列表');
+        
         const response = await getEquipmentList();
+        console.log('Store: 设备列表API响应:', response);
+        
         if (response.code === 200) {
           this.equipmentList = response.data;
+          console.log('Store: 设备列表数据已更新:', this.equipmentList);
         } else {
+          console.error('Store: 获取设备列表失败:', response.message);
           throw new Error(response.message || '获取设备列表失败');
         }
       } catch (error) {
-        console.error('获取设备列表失败', error);
+        console.error('Store: 获取设备列表异常', error);
         throw error;
       }
     },
@@ -77,15 +83,21 @@ export const useEquipmentStore = defineStore('equipment', {
     // 获取设备详情
     async fetchEquipmentDetail(id: string) {
       try {
+        console.log('Store: 开始获取设备详情, id:', id);
+        
         const response = await getEquipmentDetail(id);
+        console.log('Store: 设备详情API响应:', response);
+        
         if (response.code === 200) {
           this.currentEquipment = response.data;
+          console.log('Store: 当前设备数据已更新:', this.currentEquipment);
           return response.data;
         } else {
+          console.error('Store: 获取设备详情失败:', response.message);
           throw new Error(response.message || '获取设备详情失败');
         }
       } catch (error) {
-        console.error('获取设备详情失败', error);
+        console.error('Store: 获取设备详情异常', error);
         throw error;
       }
     },

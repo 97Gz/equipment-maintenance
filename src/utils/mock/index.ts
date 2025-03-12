@@ -205,6 +205,22 @@ const setupEquipmentMocks = () => {
   axios.interceptors.response.use(
     async (res: AxiosResponse): Promise<AxiosResponse<ApiResponse<any>>> => {
       const { url, data: reqData } = res.config;
+      console.log('设备mock拦截器处理URL:', url);
+
+      // 设备列表和详情
+      if (url?.includes('/api/equipment/list')) {
+        console.log('处理设备列表请求');
+        const result = await equipmentApi.getList();
+        console.log('设备列表结果:', result);
+        return createMockResponse(result, res.config);
+      }
+      if (url?.match(/\/api\/equipment\/detail\/\w+/)) {
+        const id = url.split('/').pop() || '';
+        console.log('处理设备详情请求, id:', id);
+        const result = await equipmentApi.getDetail(id);
+        console.log('设备详情结果:', result);
+        return createMockResponse(result, res.config);
+      }
 
       // 设备类型
       if (url?.includes('/api/equipment/type/list')) {
@@ -413,8 +429,52 @@ export const mockService = {
     };
 
     try {
-      console.log(`Mock处理请求: ${method} ${url}`);
+      console.log(`Mock处理请求: ${method} ${url}`, { method, url, data, config });
       
+      // 设备相关API
+      if (url.includes('/api/equipment/list')) {
+        console.log('Mock处理设备列表请求 - 开始');
+        try {
+          const result = await equipmentApi.getList();
+          console.log('Mock处理设备列表请求 - 成功:', result);
+          return {
+            code: 200,
+            message: 'success',
+            data: result.data
+          };
+        } catch (error) {
+          console.error('Mock处理设备列表请求 - 错误:', error);
+          throw error;
+        }
+      }
+      
+      if (url.match(/\/api\/equipment\/detail\/\w+/)) {
+        const id = url.split('/').pop() || '';
+        console.log('Mock处理设备详情请求 - 开始, id:', id);
+        try {
+          const result = await equipmentApi.getDetail(id);
+          console.log('Mock处理设备详情请求 - 成功:', result);
+          return {
+            code: 200,
+            message: 'success',
+            data: result.data
+          };
+        } catch (error) {
+          console.error('Mock处理设备详情请求 - 错误:', error);
+          throw error;
+        }
+      }
+      
+      if (url.includes('/api/equipment/save') && (method === 'POST' || method === 'PUT')) {
+        const result = await equipmentApi.save(data);
+        return result;
+      }
+      if (url.match(/\/api\/equipment\/delete\/\w+/) && method === 'DELETE') {
+        const id = url.split('/').pop() || '';
+        const result = await equipmentApi.delete(id);
+        return result;
+      }
+
       // 设备类型相关API
       if (url.includes('/api/basic/equipmentType/list')) {
         const result = await equipmentTypeApi.getList();
@@ -512,26 +572,6 @@ export const mockService = {
       if (url.match(/\/api\/basic\/supplier\/delete\/\w+/) && method === 'DELETE') {
         const id = url.split('/').pop() || '';
         const result = await supplierApi.delete(id);
-        return result;
-      }
-
-      // 设备相关API
-      if (url.includes('/api/equipment/list')) {
-        const result = await equipmentApi.getList();
-        return result;
-      }
-      if (url.match(/\/api\/equipment\/detail\/\w+/)) {
-        const id = url.split('/').pop() || '';
-        const result = await equipmentApi.getDetail(id);
-        return result;
-      }
-      if (url.includes('/api/equipment/save') && (method === 'POST' || method === 'PUT')) {
-        const result = await equipmentApi.save(data);
-        return result;
-      }
-      if (url.match(/\/api\/equipment\/delete\/\w+/) && method === 'DELETE') {
-        const id = url.split('/').pop() || '';
-        const result = await equipmentApi.delete(id);
         return result;
       }
 
@@ -641,8 +681,8 @@ export const mockService = {
         return { data: await checkStandardApi.getDetail(id) };
       }
       if (url.includes('/api/check/standard/save') && (method === 'POST' || method === 'PUT')) {
-        const data = JSON.parse(requestData || '{}');
-        return { data: await checkStandardApi.save(data) };
+        const requestData = data;
+        return { data: await checkStandardApi.save(requestData) };
       }
       if (url.match(/\/api\/check\/standard\/delete\/\w+/)) {
         const id = url.split('/').pop() || '';
@@ -658,8 +698,8 @@ export const mockService = {
         return { data: await checkRecordApi.getDetail(id) };
       }
       if (url.includes('/api/check/record/save') && (method === 'POST' || method === 'PUT')) {
-        const data = JSON.parse(requestData || '{}');
-        return { data: await checkRecordApi.save(data) };
+        const requestData = data;
+        return { data: await checkRecordApi.save(requestData) };
       }
       if (url.match(/\/api\/check\/record\/delete\/\w+/)) {
         const id = url.split('/').pop() || '';
@@ -713,7 +753,7 @@ export const mockService = {
       console.error('模拟数据处理错误:', error);
       return {
         code: 500,
-        message: '模拟数据处理错误',
+        message: '模拟数据处理错误: ' + (error instanceof Error ? error.message : String(error)),
         data: null
       };
     }
@@ -732,7 +772,21 @@ export const mockService = {
 
   // 模拟get请求
   get: (url: string, config?: any) => {
-    return mockService.processRequest('GET', url, undefined, config);
+    console.log('mockService.get 调用:', url, config);
+    try {
+      return mockService.processRequest('GET', url, undefined, config)
+        .then(response => {
+          console.log('mockService.get 成功:', url, response);
+          return response;
+        })
+        .catch(error => {
+          console.error('mockService.get 错误:', url, error);
+          throw error;
+        });
+    } catch (error) {
+      console.error('mockService.get 异常:', url, error);
+      throw error;
+    }
   },
 
   // 模拟post请求

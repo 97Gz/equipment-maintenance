@@ -49,7 +49,7 @@ export const getApiConfig = () => {
 export const serverConfig = {
   // 开发环境服务器配置
   development: {
-    host: '192.168.131.41', // 服务器IP地址
+    host: '192.168.31.206', // 服务器IP地址
     port: 3000,        // 服务器端口号
   },
   // 生产环境服务器配置
@@ -59,7 +59,7 @@ export const serverConfig = {
   },
   // 测试环境服务器配置
   test: {
-    host: '192.168.131.41', // 服务器IP地址
+    host: '192.168.31.206', // 服务器IP地址
     port: 8080,        // 服务器端口号
   }
 };

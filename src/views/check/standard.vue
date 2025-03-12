@@ -90,7 +90,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { showToast, showSuccessToast } from 'vant';
+import { showToast, showNotify } from 'vant';
 import NavBar from '@/components/NavBar.vue';
 import { useCheckStore } from '@/store/check';
 
@@ -115,7 +115,7 @@ const filteredStandards = computed(() => {
   if (searchText.value) {
     const keyword = searchText.value.toLowerCase();
     standards = standards.filter(
-      item => 
+      (item: any) => 
         item.name.toLowerCase().includes(keyword) || 
         item.code.toLowerCase().includes(keyword) ||
         item.equipmentType.toLowerCase().includes(keyword)
@@ -162,7 +162,7 @@ const deleteStandard = async () => {
   
   try {
     await checkStore.deleteStandard(currentStandard.value.id);
-    showSuccessToast('删除成功');
+    showNotify({ type: 'success', message: '删除成功' });
   } catch (error) {
     console.error('删除标准失败', error);
     showToast('删除失败');

@@ -12,7 +12,6 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import { defineComponent } from 'vue';
 
 const router = useRouter();
 
@@ -45,9 +44,12 @@ const onClickLeft = () => {
 const onClickRight = () => {
   emit('click-right');
 };
+</script>
 
-// 增加默认导出
-defineComponent({
+<script lang="ts">
+import { defineComponent } from 'vue';
+
+export default defineComponent({
   name: 'NavBar'
 });
 </script>

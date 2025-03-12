@@ -146,7 +146,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { showToast, showSuccessToast } from 'vant';
+import { showToast, showNotify } from 'vant';
 import NavBar from '@/components/NavBar.vue';
 import { useCheckStore } from '@/store/check';
 
@@ -182,7 +182,7 @@ const filteredRecords = computed(() => {
   // 应用日期筛选
   if (filterDate.value) {
     const filterDateStr = filterDate.value.split(' ')[0]; // 只取日期部分，不考虑时间
-    records = records.filter(item => 
+    records = records.filter((item: any) => 
       item.checkTime.startsWith(filterDateStr)
     );
   }
@@ -191,7 +191,7 @@ const filteredRecords = computed(() => {
   if (searchText.value) {
     const keyword = searchText.value.toLowerCase();
     records = records.filter(
-      item => 
+      (item: any) => 
         item.recordNo.toLowerCase().includes(keyword) || 
         item.equipmentName.toLowerCase().includes(keyword) || 
         item.equipmentCode.toLowerCase().includes(keyword)
@@ -259,7 +259,7 @@ const deleteRecord = async () => {
   
   try {
     await checkStore.deleteRecord(currentRecord.value.id);
-    showSuccessToast('删除成功');
+    showNotify({ type: 'success', message: '删除成功' });
   } catch (error) {
     showToast('删除失败');
     console.error('删除点检记录失败', error);
@@ -280,7 +280,7 @@ const reportRepair = (record: any) => {
 // 确认报修
 const confirmRepair = () => {
   // 这里应该调用API报修
-  showSuccessToast('报修成功');
+  showNotify({ type: 'success', message: '报修成功' });
   // 导航到报修页面也可以
   // router.push(`/repair/maintenance/add?equipmentId=${currentRecord.value.equipmentId}`);
 };

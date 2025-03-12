@@ -143,7 +143,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { showToast, showSuccessToast } from 'vant';
+import { showToast, showNotify } from 'vant';
 import { useEquipmentStore } from '@/store/equipment';
 import NavBar from '@/components/NavBar.vue';
 
@@ -209,19 +209,19 @@ const filteredEquipments = computed(() => {
   
   // 按设备类型筛选
   if (filterType.value) {
-    result = result.filter(item => item.type === filterType.value);
+    result = result.filter((item: any) => item.type === filterType.value);
   }
   
   // 按设备状态筛选
   if (filterStatus.value) {
-    result = result.filter(item => item.status === filterStatus.value);
+    result = result.filter((item: any) => item.status === filterStatus.value);
   }
   
   // 按关键字搜索
   if (searchText.value) {
     const keyword = searchText.value.toLowerCase();
     result = result.filter(
-      item => 
+      (item: any) => 
         item.name.toLowerCase().includes(keyword) || 
         (item.model && item.model.toLowerCase().includes(keyword)) ||
         (item.code && item.code.toLowerCase().includes(keyword))
@@ -246,15 +246,15 @@ const getStatusText = (status: string) => {
 
 // 获取状态类型
 const getStatusType = (status: string) => {
-  const typeMap: Record<string, string> = {
+  const typeMap: Record<string, 'primary' | 'success' | 'warning' | 'danger'> = {
     'normal': 'success',
     'warning': 'warning',
     'repairing': 'primary',
-    'standby': 'purple',
+    'standby': 'primary',
     'disabled': 'danger',
-    'scrapped': 'default'
+    'scrapped': 'danger'
   };
-  return typeMap[status] || 'default';
+  return typeMap[status] || 'primary';
 };
 
 // 搜索设备
@@ -302,9 +302,9 @@ const deleteEquipment = async () => {
     console.log('删除设备:', currentEquipment.value.id);
     // 此处仅做前端数据处理示例
     equipmentStore.equipmentList = equipmentStore.equipmentList.filter(
-      item => item.id !== currentEquipment.value.id
+      (item: any) => item.id !== currentEquipment.value.id
     );
-    showSuccessToast('设备已删除');
+    showNotify({ type: 'success', message: '设备已删除' });
   } catch (error) {
     console.error('删除设备失败', error);
     showToast('删除失败');
@@ -314,7 +314,9 @@ const deleteEquipment = async () => {
 // 页面加载时获取设备列表
 onMounted(async () => {
   try {
+    console.log('页面加载，开始获取设备列表');
     await equipmentStore.fetchEquipmentList();
+    console.log('设备列表获取成功，数据:', equipmentStore.equipmentList);
   } catch (error) {
     console.error('获取设备列表失败', error);
     showToast('获取设备列表失败');
